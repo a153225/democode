@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import xlwt
 import time
-
 # 获取第一页的内容
 
 
@@ -25,60 +24,41 @@ def parse_one_page(html):
     for item in soup.select('tr')[2:]:
 
         yield{
-            'time': item.select('div')[i].text,
-            'issue': item.select('div')[i+1].text,
-            'digits': item.select('div')[i+2].text,
-            'ten_digits': item.select('div')[i+3].text,
-            'hundred_digits': item.select('div')[i+4].text,
-            # 'single_selection': item.select('li')[i+5].text,
-            # 'group_selection_3':item.select('td')[i+4].text,
-            # 'group_selection_6':item.select('td')[i+5].text,
-            # 'sales':item.select('td')[i+6].text,
-            # 'return_rates':item.select('td')[i+7].text
-        }
+            'stu_name': item.select('div')[i].text,
+            'stu_num': item.select('div')[i+1].text,
+            'correct': item.select('div')[i+2].text,
+            'total': item.select('div')[i+3].text,
+            'correct_rate': item.select('div')[i+4].text,
 
-# 将数据写入Excel表格中
+        }
 
 
 def write_to_excel():
     f = xlwt.Workbook()
-    sheet2 = f.add_sheet('oj', cell_overwrite_ok=True)
+    sheet1 = f.add_sheet('oj', cell_overwrite_ok=True)
     row0 = ["序号", "学号", "姓名", "正确", "总提交", "正确率"]
-    # 写入第一行
+    # 写入表头
     for j in range(0, len(row0)):
-        sheet2.write(0, j, row0[j])
-
-    # 依次爬取每一页内容的每一期信息，并将其依次写入Excel
+        sheet1.write(0, j, row0[j])
+    # 依次爬取每一页内容的每个人的信息，并将其依次写入Excel
     i = 0
-    y = 2011
-    m = 10
+    data = (time.strftime("%Y年%m月%d日%H时%M分%S秒", time.localtime(time.time())))
     for k in range(0, 51, 50):
-        #url = 'http://kaijiang.zhcw.com/zhcw/html/3d/list_%s.html' %(str(k))
-        #url = 'http://lishi.tianqi.com/zhoukou/201803.html'
         url = "http://acm.zzuli.edu.cn/ranklist.php?prefix=20209&start=%s" % (
             str(k))
-       # http://acm.zzuli.edu.cn/ranklist.php?prefix=20209&start=50
         html = get_one_page(url)
         print('正在保存第%d页。' % k)
-        # 写入每一期的信息
+        # 写入每个人的信息
         for item in parse_one_page(html):
-            sheet2.write(i+1, 0, i+1)
-            sheet2.write(i+1, 1, item['time'])
-            sheet2.write(i+1, 2, item['issue'])
-            sheet2.write(i+1, 3, item['digits'])
-            sheet2.write(i+1, 4, item['ten_digits'])
-            sheet2.write(i+1, 5, item['hundred_digits'])
-            '''sheet1.write(i+1, 5, item['single_selection'])
-            sheet1.write(i+1, 6, item['group_selection_3'])
-            sheet1.write(i+1, 7, item['group_selection_6'])
-            sheet1.write(i+1, 8, item['sales'])
-            sheet1.write(i+1, 9, item['return_rates'])'''
+            sheet1.write(i+1, 0, i+1)
+            sheet1.write(i+1, 1, item['stu_name'])
+            sheet1.write(i+1, 2, item['stu_num'])
+            sheet1.write(i+1, 3, item['correct'])
+            sheet1.write(i+1, 4, item['total'])
+            sheet1.write(i+1, 5, item['correct_rate'])
             i += 1
-            # m=m+1
-            # if m==12:
-            #  y+=1
 
-    f.save('oj排名.xls')
+    f.save('oj排名%s.xls' % data)
 
 
 def main():
