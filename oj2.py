@@ -58,7 +58,7 @@ def write_to_excel():
             sheet1.write(i+1, 5, item['correct_rate'])
             i += 1
 
-    f.save('oj排名%s.xls' % data)
+    f.save(r'D:\DeskTop\OJlist\oj排名%s.xls' % data)
 
 
 def main():
